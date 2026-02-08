@@ -1,0 +1,40 @@
+pipeline {
+	agent any
+
+	options { skipDefaultCheckout() }
+
+	stages {
+
+		stage('Get Code') {
+		agent {label 'ubuntu-0'}
+			steps {
+        		deleteDir()
+				git(
+					url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws.git',
+					branch: 'develop'
+				)
+				echo WORKSPACE
+				sh '''
+     				whoami
+    				hostname
+      		  	'''
+				stash name:'code', includes:'**'
+				deleteDir()
+			}
+		}
+
+		stage('Static Test') {
+		agent {label 'ubuntu-0'}
+			steps {
+				deleteDir()
+				unstash name:'code'
+				sh 'flake8 --exit-zero --format=pylint app >flake8.out'
+				sh 'bandit -r . -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}] {msg}"'
+				recordIssues tools: [flake8(name: 'Flake8', pattern: 'flake8.out')]
+				recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')]
+				deteleDir()
+			}
+		}
+
+  }
+}
