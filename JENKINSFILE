@@ -28,6 +28,7 @@ pipeline {
 			steps {
 				deleteDir()
 				unstash name:'code'
+				sh 'cd /home/ubuntu/jenkins-agent/workspace/Res-CP1.4/Pipeline-CI/src"
 				sh 'flake8 --exit-zero --format=pylint app >flake8.out'
 				sh 'bandit -r . -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}] {msg}"'
 				recordIssues tools: [flake8(name: 'Flake8', pattern: 'flake8.out')]
