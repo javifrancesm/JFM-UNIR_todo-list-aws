@@ -8,18 +8,18 @@ pipeline {
 		stage('Get Code') {
 		agent {label 'ubuntu-0'}
 			steps {
-        	deleteDir()
-			git(
-				url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws.git',
-				branch: 'develop'
-			)
-			echo WORKSPACE
-			sh '''
-     			whoami
-    			hostname
-        	'''
-			stash name:'code', includes:'**'
-			deleteDir()
+        		deleteDir()
+				git(
+					url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws.git',
+					branch: 'develop'
+				)
+				echo WORKSPACE
+				sh '''
+     				whoami
+    				hostname
+      		  	'''
+				stash name:'code', includes:'**'
+				deleteDir()
 			}
 		}
 
