@@ -40,7 +40,10 @@ pipeline {
 		agent {label 'ubuntu-0'}
 			steps {
 				deleteDir()
-				
+				unstash name:'code'
+				sam build
+				sam validate --region us-east-1
+				sam deploy 
 				deleteDir()
 			}
 		}
