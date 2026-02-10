@@ -49,5 +49,14 @@ pipeline {
 			}
 		}
 
+		stage('Rest Test') {
+		agent {label 'ubuntu-0'}
+			steps {
+				deleteDir()
+
+				deleteDir()
+			}
+		}
+
   }
 }
