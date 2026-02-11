@@ -66,9 +66,23 @@ pipeline {
 		stage('Promote') {
 		agent {label 'ubuntu-0'}
 			steps {
-			deleteDir()
-			
-			deleteDir()
+				deleteDir()
+				git(
+				url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws.git',
+				branch: 'develop',
+				credentialsId: 'ghTK'
+				)
+				sh 'git fetch origin master'
+				sh 'git checkout master'
+				sh 'git merge origin/develop --no-commit --no-ff'
+				sh 'git checkout HEAD -- JENKINSFILE'
+				sh 'git commit -m "Merge rama develop en rama master - Manteniendo JENKINSFILE"'
+				sh 'git tag -d Release || true'
+				sh 'git tag -a "Release" -m "Release version"'
+				sh 'export REPO_URL=$(https://github.com/javifrancesm/JFM-UNIR_todo-list-aws)'
+				sh 'git push REPO_URL :refs/tags/Release || true'
+				sh 'git push REPO_URL master --tags'
+				deleteDir()
 			}
 		}
 
