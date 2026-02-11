@@ -63,5 +63,14 @@ pipeline {
 			}
 		}
 
+		stage('Promote') {
+		agent {label 'ubuntu-0'}
+			steps {
+			deleteDir()
+			
+			deleteDir()
+			}
+		}
+
   }
 }
