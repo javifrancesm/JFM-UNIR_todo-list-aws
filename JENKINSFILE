@@ -79,9 +79,8 @@ pipeline {
 				sh 'git commit -m "Merge rama develop en rama master - Manteniendo JENKINSFILE"'
 				sh 'git tag -d Release || true'
 				sh 'git tag -a "Release" -m "Release version"'
-				sh 'export REPO_URL=$(https://github.com/javifrancesm/JFM-UNIR_todo-list-aws)'
-				sh 'git push REPO_URL :refs/tags/Release || true'
-				sh 'git push REPO_URL master --tags'
+				sh 'git push :refs/tags/Release || true'
+				sh 'git push master --tags'
 				deleteDir()
 			}
 		}
