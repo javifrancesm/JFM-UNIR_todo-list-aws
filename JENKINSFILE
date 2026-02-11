@@ -84,5 +84,7 @@ pipeline {
 			}
 		}
 
+JENKINSFILE_MASTER_TEST
+
   }
 }
