@@ -79,8 +79,15 @@ pipeline {
 				sh 'git commit -m "Merge rama develop en rama master - Manteniendo JENKINSFILE"'
 				sh 'git tag -d Release || true'
 				sh 'git tag -a "Release" -m "Release version"'
-				sh 'git push :refs/tags/Release || true'
-				sh 'git push master --tags'
+				withCredentials([usernamePassword(credentialsId: 'ghTK',
+								passwordVariable: 'GIT_PASSWORD',
+								usernameVariable: 'GIT_USERNAME')]) {
+				sh '''
+				REMOTE_URL=$(git remote get-url origin | sed "s|https://|https://${GIT_USERNAME}:${GIT_PASSWORD}@|")
+				git push $REMOTE_URL :refs/tags/Release || true
+				git push $REMOTE_URL master --tags
+				'''
+								}
 				deleteDir()
 			}
 		}
