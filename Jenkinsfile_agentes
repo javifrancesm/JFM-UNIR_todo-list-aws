@@ -11,12 +11,12 @@ pipeline {
         		deleteDir()
 				git(
 					url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws.git',
-					branch: 'master',
+					branch: 'develop',
 				)
 				stash name:'code', includes:'**', excludes: 'samconfig.toml'
 				git(
 					url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws-config.git',
-					branch: 'production',
+					branch: 'staging',
 				)
 				stash name:'samconfig', includes:'samconfig.toml'
 				echo WORKSPACE
@@ -24,6 +24,24 @@ pipeline {
 					whoami
 					hostname
 				'''
+				deleteDir()
+			}
+		}
+
+		stage('Static Test') {
+		agent {label 'ubuntu-1'}
+			steps {
+				deleteDir()
+				echo WORKSPACE
+				sh '''
+					whoami
+					hostname
+				'''
+				unstash name:'code'
+				sh 'flake8 --exit-zero --format=pylint src >flake8.out'
+				sh 'bandit -r src -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}] {msg}"'
+				recordIssues tools: [flake8(name: 'Flake8', pattern: 'flake8.out')]
+				recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')]
 				deleteDir()
 			}
 		}
@@ -41,7 +59,7 @@ pipeline {
 				unstash name:'samconfig'
 				sh 'sam build'
 				sh 'sam validate --region us-east-1'
-				sh 'sam deploy --config-env production'
+				sh 'sam deploy --config-env staging'
 				deleteDir()
 			}
 		}
