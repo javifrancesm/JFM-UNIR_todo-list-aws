@@ -11,12 +11,12 @@ pipeline {
         		deleteDir()
 				git(
 					url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws.git',
-					branch: 'develop',
+					branch: 'master',
 				)
 				stash name:'code', includes:'**', excludes: 'samconfig.toml'
 				git(
 					url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws-config.git',
-					branch: 'staging',
+					branch: 'production',
 				)
 				stash name:'samconfig', includes:'samconfig.toml'
 				echo WORKSPACE
@@ -59,7 +59,7 @@ pipeline {
 				unstash name:'samconfig'
 				sh 'sam build'
 				sh 'sam validate --region us-east-1'
-				sh 'sam deploy --config-env staging'
+				sh 'sam deploy --config-env production'
 				deleteDir()
 			}
 		}
