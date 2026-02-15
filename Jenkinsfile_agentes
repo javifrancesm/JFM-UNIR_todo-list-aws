@@ -13,16 +13,17 @@ pipeline {
 					url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws.git',
 					branch: 'develop',
 				)
+				stash name:'code', includes:'**', excludes: 'samconfig.toml'
 				git(
 					url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws-config.git',
 					branch: 'staging',
 				)
+				stash name:'samconfig', includes:'samconfig.toml'
 				echo WORKSPACE
 				sh '''
 					whoami
 					hostname
 				'''
-				stash name:'code', includes:'**'
 				deleteDir()
 			}
 		}
