@@ -93,8 +93,8 @@ pipeline {
 				sh 'git fetch origin master'
 				sh 'git checkout master'
 				sh 'git merge origin/develop --no-commit --no-ff'
-				sh 'git checkout HEAD -- JENKINSFILE'
-				sh 'git commit -m "Merge rama develop en rama master - Manteniendo JENKINSFILE"'
+				sh 'git checkout HEAD -- JENKINSFILE Jenkinsfile_agentes'
+				sh 'git commit -m "Merge rama develop en rama master - Manteniendo JENKINSFILE y Jenkinsfile_agentes"'
 				sh 'git tag -d Release || true'
 				sh 'git tag -a "Release" -m "Release version"'
 				withCredentials([usernamePassword(credentialsId: 'ghTK',
