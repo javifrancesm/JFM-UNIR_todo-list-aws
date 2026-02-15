@@ -38,9 +38,10 @@ pipeline {
 					hostname
 				'''
 				unstash name:'code'
+				unstash name:'samconfig'
 				sh 'sam build'
 				sh 'sam validate --region us-east-1'
-				sh 'sam deploy --stack-name production-todo-list-aws --s3-bucket sam-artifacts-cp14-jfm-unir-2026 --region us-east-1 --capabilities CAPABILITY_IAM --parameter-overrides Stage=production --no-confirm-changeset --no-fail-on-empty-changeset'
+				sh 'sh 'sam deploy --config-env production'
 				deleteDir()
 			}
 		}
