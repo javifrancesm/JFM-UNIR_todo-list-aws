@@ -11,7 +11,7 @@ pipeline {
         		deleteDir()
 				git(
 					url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws.git',
-					branch: 'master',
+					branch: 'develop',
 				)
 				echo WORKSPACE
 				sh '''
