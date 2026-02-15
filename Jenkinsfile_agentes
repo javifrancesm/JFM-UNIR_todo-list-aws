@@ -27,11 +27,11 @@ pipeline {
 		agent {label 'ubuntu-1'}
 			steps {
 				deleteDir()
-        echo WORKSPACE
+				echo WORKSPACE
 				sh '''
-          whoami
-          hostname
-        '''
+					whoami
+					hostname
+				'''
 				unstash name:'code'
 				sh 'sam build'
 				sh 'sam validate --region us-east-1'
@@ -44,11 +44,11 @@ pipeline {
 		agent {label 'ubuntu-2'}
 			steps {
 				deleteDir()
-        echo WORKSPACE
-        sh '''
-          whoami
-          hostname
-        '''
+				echo WORKSPACE
+				sh '''
+					whoami
+					hostname
+				'''
 				unstash name:'code'
 				sh '''
 					export BASE_URL=$(aws cloudformation describe-stacks --stack-name production-todo-list-aws --query 'Stacks[0].Outputs[?OutputKey==`BaseUrlApi`].OutputValue' --region us-east-1 --output text)
