@@ -11,7 +11,7 @@ pipeline {
         		deleteDir()
 				git(
 					url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws.git',
-					branch: 'develop',
+					branch: 'master',
 				)
 				echo WORKSPACE
 				sh '''
@@ -30,7 +30,7 @@ pipeline {
 				unstash name:'code'
 				sh 'sam build'
 				sh 'sam validate --region us-east-1'
-				sh 'sam deploy --stack-name staging-todo-list-aws --s3-bucket sam-artifacts-cp14-jfm-unir-2026 --region us-east-1 --capabilities CAPABILITY_IAM --parameter-overrides Stage=staging --no-confirm-changeset --no-fail-on-empty-changeset'
+				sh 'sam deploy --stack-name production-todo-list-aws --s3-bucket sam-artifacts-cp14-jfm-unir-2026 --region us-east-1 --capabilities CAPABILITY_IAM --parameter-overrides Stage=production --no-confirm-changeset --no-fail-on-empty-changeset'
 				deleteDir()
 			}
 		}
