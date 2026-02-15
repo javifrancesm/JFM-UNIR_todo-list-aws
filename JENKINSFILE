@@ -34,20 +34,20 @@ pipeline {
 				deleteDir()
 			}
 		}
-/*
+
 		stage('Rest Test') {
 		agent {label 'ubuntu-0'}
 			steps {
 				deleteDir()
 				unstash name:'code'
 				sh '''
-					export BASE_URL=$(aws cloudformation describe-stacks --stack-name staging-todo-list-aws --query 'Stacks[0].Outputs[?OutputKey==`BaseUrlApi`].OutputValue' --region us-east-1 --output text)
+					export BASE_URL=$(aws cloudformation describe-stacks --stack-name production-todo-list-aws --query 'Stacks[0].Outputs[?OutputKey==`BaseUrlApi`].OutputValue' --region us-east-1 --output text)
 					export PYTHONPATH=%WORKSPACE%
-					pytest test/integration/todoApiTest.py
+					pytest test/integration/todoApiTest.py -k "test_api_listtodos or test_api_gettodo"
 				'''
 				deleteDir()
 			}
 		}
-*/
+
   }
 }
