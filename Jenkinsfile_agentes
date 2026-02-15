@@ -15,9 +15,9 @@ pipeline {
 				)
 				echo WORKSPACE
 				sh '''
-            whoami
-    				hostname
-      		  	'''
+					whoami
+					hostname
+				'''
 				stash name:'code', includes:'**'
 				deleteDir()
 			}
@@ -27,11 +27,11 @@ pipeline {
 		agent {label 'ubuntu-1'}
 			steps {
 				deleteDir()
-        echo WORKSPACE
+				echo WORKSPACE
 				sh '''
-     				whoami
-    				hostname
-      	'''
+					whoami
+					hostname
+				'''
 				unstash name:'code'
 				sh 'flake8 --exit-zero --format=pylint src >flake8.out'
 				sh 'bandit -r src -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}] {msg}"'
@@ -45,11 +45,11 @@ pipeline {
 		agent {label 'ubuntu-2'}
 			steps {
 				deleteDir()
-        echo WORKSPACE
+				echo WORKSPACE
 				sh '''
-     		  whoami
-    				hostname
-      		  	'''
+					whoami
+					hostname
+				'''
 				unstash name:'code'
 				sh 'sam build'
 				sh 'sam validate --region us-east-1'
@@ -62,6 +62,11 @@ pipeline {
 		agent {label 'ubuntu-2'}
 			steps {
 				deleteDir()
+				echo WORKSPACE
+				sh '''
+					whoami
+					hostname
+				'''
 				unstash name:'code'
 				sh '''
 					export BASE_URL=$(aws cloudformation describe-stacks --stack-name staging-todo-list-aws --query 'Stacks[0].Outputs[?OutputKey==`BaseUrlApi`].OutputValue' --region us-east-1 --output text)
@@ -76,6 +81,11 @@ pipeline {
 		agent {label 'ubuntu-0'}
 			steps {
 				deleteDir()
+				echo WORKSPACE
+				sh '''
+					whoami
+					hostname
+				'''
 				git(
 				url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws.git',
 				branch: 'develop',
