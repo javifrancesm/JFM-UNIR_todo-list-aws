@@ -1,1 +1,63 @@
+pipeline {
+	agent any
 
+	options { skipDefaultCheckout() }
+
+	stages {
+
+		stage('Get Code') {
+		agent {label 'ubuntu-0'}
+			steps {
+        		deleteDir()
+				git(
+					url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws.git',
+					branch: 'master',
+				)
+				echo WORKSPACE
+				sh '''
+     				whoami
+    				hostname
+      		  	'''
+				stash name:'code', includes:'**'
+				deleteDir()
+			}
+		}
+
+		stage('Deploy') {
+		agent {label 'ubuntu-1'}
+			steps {
+				deleteDir()
+        echo WORKSPACE
+				sh '''
+          whoami
+          hostname
+        '''
+				unstash name:'code'
+				sh 'sam build'
+				sh 'sam validate --region us-east-1'
+				sh 'sam deploy --stack-name production-todo-list-aws --s3-bucket sam-artifacts-cp14-jfm-unir-2026 --region us-east-1 --capabilities CAPABILITY_IAM --parameter-overrides Stage=production --no-confirm-changeset --no-fail-on-empty-changeset'
+				deleteDir()
+			}
+		}
+
+		stage('Rest Test') {
+		agent {label 'ubuntu-2'}
+			steps {
+				deleteDir()
+        echo WORKSPACE
+        sh '''
+          whoami
+          hostname
+        '''
+				unstash name:'code'
+				sh '''
+					export BASE_URL=$(aws cloudformation describe-stacks --stack-name production-todo-list-aws --query 'Stacks[0].Outputs[?OutputKey==`BaseUrlApi`].OutputValue' --region us-east-1 --output text)
+					export PYTHONPATH=%WORKSPACE%
+					pytest test/integration/todoApiTest.py -k "test_api_listtodos or test_api_gettodo"
+				'''
+				deleteDir()
+			}
+		}
+
+  }
+}
