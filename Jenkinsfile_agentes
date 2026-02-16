@@ -59,7 +59,7 @@ pipeline {
 				unstash name:'samconfig'
 				sh 'sam build'
 				sh 'sam validate --region us-east-1'
-				sh 'sam deploy --config-env staging'
+				sh 'sam deploy --config-env staging --no-fail-on-empty-changeset'
 				deleteDir()
 			}
 		}
