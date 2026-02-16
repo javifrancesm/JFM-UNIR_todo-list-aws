@@ -11,12 +11,12 @@ pipeline {
         		deleteDir()
 				git(
 					url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws.git',
-					branch: 'develop',
+					branch: 'master',
 				)
 				stash name:'code', includes:'**', excludes: 'samconfig.toml'
 				git(
 					url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws-config.git',
-					branch: 'staging',
+					branch: 'production',
 				)
 				stash name:'samconfig', includes:'samconfig.toml'
 				echo WORKSPACE
@@ -28,26 +28,8 @@ pipeline {
 			}
 		}
 
-		stage('Static Test') {
-		agent {label 'ubuntu-1'}
-			steps {
-				deleteDir()
-				echo WORKSPACE
-				sh '''
-					whoami
-					hostname
-				'''
-				unstash name:'code'
-				sh 'flake8 --exit-zero --format=pylint src >flake8.out'
-				sh 'bandit -r src -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}] {msg}"'
-				recordIssues tools: [flake8(name: 'Flake8', pattern: 'flake8.out')]
-				recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')]
-				deleteDir()
-			}
-		}
-
 		stage('Deploy') {
-		agent {label 'ubuntu-2'}
+		agent {label 'ubuntu-1'}
 			steps {
 				deleteDir()
 				echo WORKSPACE
@@ -59,7 +41,6 @@ pipeline {
 				unstash name:'samconfig'
 				sh 'sam build'
 				sh 'sam validate --region us-east-1'
-				sh 'sam deploy --config-env staging --no-fail-on-empty-changeset'
 				sh 'sam deploy --config-env production --no-fail-on-empty-changeset'
 				deleteDir()
 			}
@@ -76,43 +57,10 @@ pipeline {
 				'''
 				unstash name:'code'
 				sh '''
-					export BASE_URL=$(aws cloudformation describe-stacks --stack-name staging-todo-list-aws --query 'Stacks[0].Outputs[?OutputKey==`BaseUrlApi`].OutputValue' --region us-east-1 --output text)
+					export BASE_URL=$(aws cloudformation describe-stacks --stack-name production-todo-list-aws --query 'Stacks[0].Outputs[?OutputKey==`BaseUrlApi`].OutputValue' --region us-east-1 --output text)
 					export PYTHONPATH=%WORKSPACE%
-					pytest test/integration/todoApiTest.py
+					pytest test/integration/todoApiTest.py -k "test_api_listtodos or test_api_gettodo"
 				'''
-				deleteDir()
-			}
-		}
-
-		stage('Promote') {
-		agent {label 'ubuntu-0'}
-			steps {
-				deleteDir()
-				echo WORKSPACE
-				sh '''
-					whoami
-					hostname
-				'''
-				git(
-				url: 'https://github.com/javifrancesm/JFM-UNIR_todo-list-aws.git',
-				branch: 'develop',
-				)
-				sh 'git fetch origin master'
-				sh 'git checkout master'
-				sh 'git merge origin/develop --no-commit --no-ff'
-				sh 'git checkout HEAD -- JENKINSFILE Jenkinsfile_agentes'
-				sh 'git commit -m "Merge rama develop en rama master - Manteniendo JENKINSFILE y Jenkinsfile_agentes"'
-				sh 'git tag -d Release || true'
-				sh 'git tag -a "Release" -m "Release version"'
-				withCredentials([usernamePassword(credentialsId: 'ghTK',
-								passwordVariable: 'GIT_PASSWORD',
-								usernameVariable: 'GIT_USERNAME')]) {
-				sh '''
-				REMOTE_URL=$(git remote get-url origin | sed "s|https://|https://${GIT_USERNAME}:${GIT_PASSWORD}@|")
-				git push $REMOTE_URL :refs/tags/Release || true
-				git push $REMOTE_URL master --tags
-				'''
-								}
 				deleteDir()
 			}
 		}
